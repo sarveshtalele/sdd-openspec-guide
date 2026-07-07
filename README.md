@@ -10,6 +10,11 @@ browser-verified so far; see `example-walkthrough/` for the full real transcript
 here (it's a public clone, re-fetchable anytime; see below). What's in git: the
 OpenSpec workspace, the modern stack, the skill, and the full documented process.
 
+**New to OpenSpec?** [OPENSPEC_GUIDE.md](OPENSPEC_GUIDE.md) is a standalone, generic
+guide — install, every CLI command in one line with when to use it, the day-to-day
+SDD loop, and a legacy-migration workflow, all distilled from what actually happened in
+this project.
+
 ## Getting the Legacy Source
 
 Not tracked in this repo (see `.gitignore` and "Why legacy/ isn't in git" below). Clone
