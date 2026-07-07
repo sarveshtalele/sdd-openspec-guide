@@ -15,6 +15,10 @@ guide — install, every CLI command in one line with when to use it, the day-to
 SDD loop, and a legacy-migration workflow, all distilled from what actually happened in
 this project.
 
+**Reporting to stakeholders or leadership?** [STAKEHOLDER_GUIDE.md](STAKEHOLDER_GUIDE.md)
+explains the same process in professional, non-implementation-specific language — the
+approach, the governance controls, a worked example, and the roadmap to full migration.
+
 ## Getting the Legacy Source
 
 Not tracked in this repo (see `.gitignore` and "Why legacy/ isn't in git" below). Clone
