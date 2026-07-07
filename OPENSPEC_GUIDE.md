@@ -130,7 +130,7 @@ Verified against the real installed CLI (`openspec --help` and every subcommand'
 | `openspec schemas` | List available workflow schemas with descriptions | Checking what schemas exist before forking one (a fresh install has exactly one: `spec-driven`) |
 | `openspec schema init/fork/validate/which` | Manage custom workflow schemas *(experimental)* | Only if the default proposal→specs→design→tasks shape doesn't fit your team |
 | `openspec config path/list/get/set/unset/reset/edit` | View/modify global OpenSpec CLI config | Checking or changing CLI-wide settings (not per-project) |
-| `openspec config profile [preset]` | Show/set the workflow profile | Checking which skills your profile grants — **only `core` exists in v1.5.0**, see Part 7 |
+| `openspec config profile [preset]` | Show/set the workflow profile | Checking which skills your profile grants — the non-interactive `[preset]` shortcut only accepts `core`, see the note below the tables |
 | `openspec feedback <message>` | Submit feedback to the OpenSpec maintainers | Reporting a bug or suggestion |
 | `openspec completion` | Manage shell completions | One-time shell setup convenience |
 
@@ -141,13 +141,32 @@ Verified against the real installed CLI (`openspec --help` and every subcommand'
 | `openspec store setup/register/unregister/remove/list/doctor` | Create/manage standalone OpenSpec repos registered on your machine | Centralizing specs across multiple codebases — not needed for a single project |
 | `openspec workset create/list/open/remove` | Compose personal, local-only working views across stores | Same — multi-repo power-user feature |
 
-**Correction vs. some published docs**: there is no `--profile expanded` / "core vs.
-expanded" split with extra commands (`/opsx:new`, `/opsx:continue`, `/opsx:ff`,
-`/opsx:verify`, `/opsx:bulk-archive`, `/opsx:onboard`). Running
-`openspec config profile expanded` on the real CLI fails with
-`Unknown profile preset "expanded". Available presets: core`. The granular,
-step-by-step mechanism that actually exists is `openspec instructions <artifact>
---change <name>` — real, verified, and what every worked example in this guide uses.
+**Profiles, precisely (re-verified against the official repo's docs and the actual
+installed CLI, since the two disagree with each other in one spot):**
+
+Official docs (`docs/commands.md`, `docs/faq.md`, quoted directly) describe two
+profiles: **core** (default — `propose`, `explore`, `apply`, `sync`, `archive`) and
+**expanded** (adds `new`, `continue`, `ff`, `verify`, `bulk-archive`, `onboard`), selected
+via `openspec config profile` (interactive) then applied to a project with
+`openspec update`.
+
+What's directly verified against the real CLI (v1.5.0, freshly reinstalled at `@latest`):
+- `openspec init --help` names the second option **"custom"**, not "expanded" —
+  `--profile <profile>  Override global config profile (core or custom)`. The official
+  docs and the CLI's own `--help` text disagree with each other on the name; not
+  something this guide got wrong, a real inconsistency in the upstream project itself.
+- The **non-interactive shortcut form fails for both names**: `openspec config profile
+  expanded` and `openspec config profile custom` both error with
+  `Unknown profile preset "<name>". Available presets: core`. Selecting the second
+  profile appears to require a genuine interactive terminal session
+  (`openspec config profile` with no argument, then choosing from a picker) — not
+  scriptable via a single non-interactive command, and not something this guide could
+  fully exercise in a non-TTY environment. If you're scripting/automating OpenSpec setup
+  (CI, a setup script), plan for `core` only unless you've confirmed interactively that
+  the second profile activates in your terminal.
+- What *is* fully verified either way: the granular, step-by-step mechanism
+  `openspec instructions <artifact> --change <name>` — used throughout this guide and
+  the companion project regardless of profile, and not gated behind either profile.
 
 ---
 
@@ -253,10 +272,12 @@ for every command and every real result.
 
 ## Part 7 — Real Gotchas (Found the Hard Way)
 
-- **Published docs vs. the real CLI can diverge.** The `/opsx:*` command names and
-  "expanded profile" mentioned in some OpenSpec documentation don't exist in the
-  installed v1.5.0 CLI — verified directly, see Part 4's correction note. Always check
-  `--help` on the actual installed version before trusting a doc.
+- **A project's own docs can disagree with its own `--help` output.** OpenSpec's
+  official docs call the second profile "expanded"; `openspec init --help` calls it
+  "custom"; neither name works as a non-interactive `openspec config profile <name>`
+  shortcut (both error, only `core` is listed as available) — see Part 4 for the full,
+  precise finding. Don't assume a feature works as documented until you've run it
+  yourself against the version you actually have installed.
 - **Long paths on Windows.** Cloning a repo with deeply-nested folders can fail with
   `Filename too long` partway through. Fix: `git -c core.longpaths=true clone ...` **and**
   a short destination path — `core.longpaths` alone wasn't sufficient on a deeply nested
@@ -319,9 +340,14 @@ about the *legacy analysis + capability-ranking* layer on top, which only matter
 there's an existing codebase to migrate.
 
 **How do I know which profile/skills I have?**
-`openspec config profile` shows it. v1.5.0 ships one preset, `core`: `openspec-propose`,
-`openspec-explore`, `openspec-apply-change`, `openspec-sync-specs`,
-`openspec-archive-change`.
+`openspec config list` shows your current profile and its workflow set (the `core`
+default gives `propose, explore, apply, sync, archive` — confirmed directly, matching
+the 5 real Claude Code skill folders `openspec init --tools claude` creates:
+`openspec-propose`, `openspec-explore`, `openspec-apply-change`, `openspec-sync-specs`,
+`openspec-archive-change`). To try the docs' "expanded" profile, run
+`openspec config profile` with no arguments in a real interactive terminal and pick from
+the prompt, then `openspec update` in your project — the shortcut form
+(`openspec config profile expanded`) doesn't work non-interactively, see Part 4.
 
 **I ran `openspec archive` too early / on the wrong change — what now?**
 Same care as any git history mistake — the archived change moves to
