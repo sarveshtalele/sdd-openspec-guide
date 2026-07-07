@@ -31,12 +31,15 @@ executes those tasks using ordinary development tools.
 | 1 | Analyze legacy source | aspx-analyzer skill | `python skill/scripts/aspx_analysis_skill.py legacy --view project` |
 | 2 | Initialize planning workspace | OpenSpec CLI | `openspec init --tools claude` (once) |
 | 3 | Project analysis into planning workspace | aspx-analyzer skill | `python skill/scripts/aspx_openspec_emitter.py <index.json> --openspec-dir openspec` |
+| 3.5 | *(Optional)* Explore an idea before committing to a change | Claude Code skill only | `openspec-explore` — no CLI equivalent, see note below |
 | 4 | Create + author a change's 4 artifacts | OpenSpec CLI | `openspec new change`, `openspec instructions <artifact>` (repeated per artifact) |
 | 5 | Implement per `tasks.md` | Developer / Claude Code, using `dotnet`/`npm` directly | Not an OpenSpec or skill command — ordinary application tooling |
+| 5.5 | *(Optional)* Sync delta specs ahead of archiving | Claude Code skill only | `openspec-sync-specs` — no CLI equivalent, see note below |
 | 6 | Validate + archive | OpenSpec CLI | `openspec validate --strict`, `openspec archive` |
 
 Steps 1 and 3 run once per legacy-analysis cycle. Steps 4 and 6 run once per capability.
-Step 5 is outside OpenSpec entirely.
+Step 5 is outside OpenSpec entirely. Steps 3.5 and 5.5 are optional and only reachable
+as Claude Code skills — see the note at the end of Section 3.
 
 ---
 
@@ -122,6 +125,26 @@ Verified against the installed CLI (`openspec --version` → `1.5.0`).
 | `openspec store setup/register/unregister/remove/list/doctor` | Manage standalone OpenSpec repos across projects |
 | `openspec workset create/list/open/remove` | Personal, local-only cross-store views |
 
+### Namespaced forms (equivalents of commands above)
+
+| Command | Function | Status |
+|---|---|---|
+| `openspec change show/list/validate` | Same as `openspec show`/`list`/`validate` scoped to changes | `change list` is explicitly marked deprecated by the CLI itself — use `openspec list` |
+| `openspec spec show/list/validate` | Same as `openspec show`/`list --specs`/`validate` scoped to specs | Not deprecated, but redundant with the top-level forms used throughout this Handbook |
+
+### `explore` and `sync` are not CLI commands
+
+`propose`, `explore`, `apply`, `sync`, `archive` are the **workflow names inside a
+profile** (see Profile note below) and map to Claude Code skills
+(`openspec-propose`, `openspec-explore`, `openspec-apply-change`, `openspec-sync-specs`,
+`openspec-archive-change`) — they are not top-level CLI verbs. Confirmed directly:
+`openspec explore` and `openspec sync` are not recognized subcommands (`openspec
+--help` lists no such entries; running either just prints full help, no error). If you
+are not using Claude Code (or an equivalent AI-assistant integration), there is no
+direct CLI substitute for `explore` (it has no artifact — it's a thinking aid) or for
+`sync` (its effect — merging delta specs into `openspec/specs/` ahead of archiving — is
+otherwise only reachable as part of `openspec archive` itself).
+
 **Profile note:** the CLI ships a `core` preset (`propose`, `explore`, `apply`, `sync`,
 `archive`). A second profile is documented (named `expanded` in `docs/commands.md`,
 named `custom` in `openspec init --help` — the two disagree with each other) but is not
@@ -159,6 +182,10 @@ python skill/scripts/aspx_roadmap_emitter.py <index.json>              # optiona
 ### Per-capability loop (repeat for every feature)
 
 ```bash
+# 0. (Optional, Claude Code only — no CLI equivalent) Use the openspec-explore
+#    skill to think through the idea before committing to a change, if the
+#    capability isn't yet well-scoped.
+
 openspec new change <name> --description "..." --goal "..."
 openspec instructions proposal --change <name>   # author proposal.md
 openspec instructions design   --change <name>   # author design.md
@@ -168,6 +195,11 @@ openspec status   --change <name>                 # confirm 4/4
 openspec validate <name> --strict                  # confirm valid
 # implement strictly per tasks.md, using dotnet/npm — not an OpenSpec step
 openspec validate <name> --strict                  # re-validate post-implementation
+
+# (Optional, Claude Code only — no CLI equivalent) Use the openspec-sync-specs
+# skill to merge delta specs into openspec/specs/ ahead of archiving, if you
+# want the durable spec updated before the change is formally closed.
+
 openspec archive <name>                             # only once every task is verified, not just written
 ```
 
