@@ -17,9 +17,11 @@ for the real, full transcript this guide is distilled from.
 - [Part 4 — Command Reference (Every Command, One Line, When to Use It)](#part-4--command-reference-every-command-one-line-when-to-use-it)
 - [Part 5 — The Core SDD Loop (Any Feature, Any Project)](#part-5--the-core-sdd-loop-any-feature-any-project)
 - [Part 6 — End-to-End: Migrating a Legacy Project](#part-6--end-to-end-migrating-a-legacy-project)
-- [Part 7 — Real Gotchas (Found the Hard Way)](#part-7--real-gotchas-found-the-hard-way)
-- [Part 8 — Multiple People, One Project](#part-8--multiple-people-one-project)
-- [Part 9 — FAQ](#part-9--faq)
+- [Part 7 — Every Command, As Used in This Project](#part-7--every-command-as-used-in-this-project)
+- [Part 8 — How to Build Your Next Feature in This Project](#part-8--how-to-build-your-next-feature-in-this-project)
+- [Part 9 — Real Gotchas (Found the Hard Way)](#part-9--real-gotchas-found-the-hard-way)
+- [Part 10 — Multiple People, One Project](#part-10--multiple-people-one-project)
+- [Part 11 — FAQ](#part-11--faq)
 
 ---
 
@@ -270,7 +272,106 @@ for every command and every real result.
 
 ---
 
-## Part 7 — Real Gotchas (Found the Hard Way)
+## Part 7 — Every Command, As Used in This Project
+
+Part 4 is generic. This is the same commands against the real
+`modernization/openspec/` in this repo — every invocation below was actually run while
+building `modernize-grid-checkbox-selection` and `modernize-grid-basic-selection` (see
+`example-walkthrough/EXAMPLE_WALKTHROUGH.md` Parts 12–13 for the full transcripts each
+of these is pulled from).
+
+All of these run from `modernization/` (`cd modernization` first):
+
+| Command | Real invocation in this project | What it actually did/returned here |
+|---|---|---|
+| `openspec init` | `openspec init --tools claude` (run once, at project start) | Created `openspec/config.yaml` + 5 skills under `.claude/skills/` |
+| `openspec new change` | `openspec new change modernize-grid-checkbox-selection --description "Rebuild the legacy Grid/CheckboxSelection.aspx Web Forms demo..." --goal "Second real modernization proof..."` | `Created change 'modernize-grid-checkbox-selection' at openspec\changes\modernize-grid-checkbox-selection/` |
+| `openspec instructions proposal` | `openspec instructions proposal --change modernize-grid-checkbox-selection` | Printed the write path + template; result authored to `openspec/changes/modernize-grid-checkbox-selection/proposal.md` |
+| `openspec instructions design` | `openspec instructions design --change modernize-grid-checkbox-selection` | Printed dependency info (reads `proposal.md` first) + template; result authored to `design.md` — this is where the "share the existing `OrdersApi` project instead of a new one" decision got documented |
+| `openspec instructions specs` | `openspec instructions specs --change modernize-grid-checkbox-selection` | Result authored to `specs/checkbox-selection-grid-api/spec.md` — 5 requirements, each with `#### Scenario` blocks |
+| `openspec instructions tasks` | `openspec instructions tasks --change modernize-grid-checkbox-selection` | Result authored to `tasks.md` — 5 numbered groups (backend / mock / frontend / browser verification / deferred real-backend verification) |
+| `openspec status --change` | `openspec status --change modernize-grid-basic-selection` | `Progress: 4/4 artifacts complete` once all 4 were authored |
+| `openspec validate --strict` | `openspec validate modernize-grid-checkbox-selection --strict` | `Change 'modernize-grid-checkbox-selection' is valid` — run right after authoring, and again after implementation |
+| `openspec list` | `openspec list` (no args) | Real output showed 13 changes: the 2 built capabilities at `14/16 tasks` each, plus 11 unused proposal stubs (`administration`, `orders`, `search`, ... — one per functional area, seeded by `aspx_openspec_emitter.py`) with `No tasks` |
+| `openspec archive` | **Not run yet, deliberately** | Both built capabilities are still `14/16` — the 2 unchecked tasks in each are real-.NET-SDK backend verification, unavailable in the authoring environment. Archiving before that would be a false claim of "done" — see Part 9's honesty-discipline gotcha |
+
+**Not used in this project (and why):** `openspec view`/`openspec context`/`openspec doctor`
+weren't needed — no runtime issues came up that needed diagnosing. `openspec schema *`
+wasn't touched — the default `spec-driven` schema fit both capabilities as-is, no need to
+fork it. `openspec store`/`workset` are multi-repo features and this is a single project.
+
+---
+
+## Part 8 — How to Build Your Next Feature in This Project
+
+Concrete, step-by-step, using this repo's actual paths and conventions — not a generic
+template. This is exactly what building `modernize-grid-batch-editing` (the checklist in
+`example-walkthrough/EXAMPLE_WALKTHROUGH.md` Part 14, not yet built) looks like; swap the
+capability name/legacy page for whatever you pick next.
+
+```bash
+# 0. You need the legacy source present to read the code-behind you're porting
+#    (see README.md "Getting the Legacy Source" if legacy/ isn't cloned yet)
+cd aspnet-ej1-demos-modernization
+
+# 1. Read the legacy page you're porting FIRST — don't guess the data/behavior
+cat legacy/Grid/BatchEditing.aspx.cs
+cat legacy/Grid/BatchEditing.aspx
+
+# 2. Create the change, from inside modernization/
+cd modernization
+openspec new change modernize-grid-batch-editing \
+  --description "Rebuild Grid/BatchEditing.aspx (inline add/edit/delete, batch-saved) as ASP.NET Core Web API + React/TypeScript" \
+  --goal "Fourth capability in this workspace; first one involving writes, not just reads"
+
+# 3. Author all 4 artifacts, in order — read what each command prints (write path +
+#    section rules + template) before writing the file
+openspec instructions proposal --change modernize-grid-batch-editing
+openspec instructions design   --change modernize-grid-batch-editing
+openspec instructions specs    --change modernize-grid-batch-editing
+openspec instructions tasks    --change modernize-grid-batch-editing
+
+# 4. Confirm before implementing
+openspec status   --change modernize-grid-batch-editing
+openspec validate modernize-grid-batch-editing --strict
+
+# 5. Implement STRICTLY per your tasks.md, reusing this project's existing pieces —
+#    don't scaffold new ones:
+#      - Backend goes in the EXISTING modernization/OrdersApi/ project:
+#          OrdersApi/Data/BatchEditingOrdersRepository.cs  (port BindDataSource() exactly)
+#          OrdersApi/Controllers/BatchEditingController.cs (this capability needs
+#            GET + POST/PUT/DELETE — check the legacy save handler's actual semantics
+#            before assuming REST-per-row vs. one batch payload)
+#      - Frontend goes in the EXISTING modernization/orders-grid-web/:
+#          src/api/batchEditingClient.ts
+#          src/components/BatchEditingGrid.tsx
+#          wire it into src/App.tsx alongside the existing grids, clearly labeled
+
+# 6. Mock data for local browser verification (no .NET SDK needed) — reuse the
+#    EXISTING mock server, don't start a second one. json-server supports multiple
+#    top-level resource keys from one instance and already handles GET/POST/PUT/
+#    DELETE/PATCH out of the box against them:
+cd orders-grid-web
+#    add a new top-level key to the EXISTING mock/db.json, e.g. "batch-editing-orders"
+npx json-server mock/db.json --port 3001    # same one instance, now 3 resources
+npm run build                                # must actually pass
+npm run dev                                  # http://localhost:5173
+
+# 7. Real browser verification — for THIS capability specifically, a read-only
+#    click-and-look pass is NOT sufficient evidence (see Part 9): add a row, edit a
+#    cell, delete a row, save, reload, confirm the change persisted in the mock's
+#    store. Check the browser console for errors throughout.
+
+# 8. Update tasks.md checkboxes honestly (only what you actually verified running),
+#    re-validate, and leave real-.NET-SDK-backend verification unchecked + the
+#    change unarchived until you actually have dotnet available:
+openspec validate modernize-grid-batch-editing --strict
+# openspec archive modernize-grid-batch-editing   <- only once tasks.md is truly 4/4-ish complete
+```
+
+---
+
+## Part 9 — Real Gotchas (Found the Hard Way)
 
 - **A project's own docs can disagree with its own `--help` output.** OpenSpec's
   official docs call the second profile "expanded"; `openspec init --help` calls it
@@ -299,7 +400,7 @@ for every command and every real result.
 
 ---
 
-## Part 8 — Multiple People, One Project
+## Part 10 — Multiple People, One Project
 
 OpenSpec's file-per-change layout (`openspec/changes/<name>/`) is what makes this
 tractable — two people on different capabilities never touch the same files.
@@ -323,7 +424,7 @@ tractable — two people on different capabilities never touch the same files.
 
 ---
 
-## Part 9 — FAQ
+## Part 11 — FAQ
 
 **Do I need an AI assistant to use OpenSpec, or can I author artifacts by hand?**
 Either. `openspec instructions <artifact> --change <name>` prints the exact template and
