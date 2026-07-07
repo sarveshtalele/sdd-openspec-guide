@@ -1,0 +1,4 @@
+# ASPX Analysis Skill — Python dependencies
+# No third-party packages required.
+# Uses only Python standard library: re, os, json, pathlib, subprocess, tempfile, shutil, datetime
+# Minimum Python version: 3.8

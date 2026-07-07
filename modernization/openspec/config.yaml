@@ -1,0 +1,39 @@
+schema: spec-driven
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+# Example:
+#   context: |
+#     Tech stack: TypeScript, React, Node.js
+#     We use conventional commits
+#     Domain: e-commerce platform
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# >>> aspx-analyzer:auto-generated (regenerate via aspx_openspec_emitter.py — do not hand-edit below) >>>
+context: |
+  Legacy stack: ASP.NET Web Forms (.NET Framework), code-behind pattern.
+  Project: aspnet-ej1-demos
+  Inventory: 1147 .aspx page(s), 4 .ascx user control(s), 2 .master page(s).
+  Connection strings declared: ApplicationServices, SQLConnectionString, SelfReferenceConnectionString, Linq_To_SQLConnectionString, ScheduleConnectionString, DiagramDataConnectionString, Adventure Works, Adventure Works DW1, ScheduleDataEntities, AspNetSqlMembershipProvider, AspNetSqlProfileProvider, AspNetSqlRoleProvider
+  Direct SQL usage (SqlConnection/SqlCommand in code-behind) found in 6 page(s) — treat as tight-coupling / injection-risk debt.
+  Business capabilities discovered (page count): Administration (16), Configuration (3), Contact (2), Content (5), General (829), Home (70), Orders (3), Products (1), Reports (206), Search (5), Users (7)
+  Modernization target: to be defined per capability in openspec/changes/<area>/proposal.md.
+rules:
+  proposal:
+    - "Every proposal must name which legacy .aspx page(s) it replaces (use rel_path from the aspx-analyzer index)."
+    - "Preserve existing authorization boundaries unless the proposal explicitly calls out an access-model change."
+    - "6 legacy page(s) use direct SQL (SqlConnection/SqlCommand) in code-behind — proposals touching these must include a data-access migration plan (parametrized queries / repository layer), not a like-for-like lift."
+  specs:
+    - "Reference actual legacy page names and routes from the proposal's page list — do not invent screen names."
+    - "Call out any page whose auth was inferred as 'unknown' by the analyzer as a spec risk requiring manual auth verification."
+# <<< aspx-analyzer:auto-generated <<<

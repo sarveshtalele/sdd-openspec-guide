@@ -1,0 +1,4 @@
+schema: spec-driven
+created: 2026-07-07
+goal: Prove the pattern generalizes to a second, differently-interacting grid
+  capability, genuinely browser-verified

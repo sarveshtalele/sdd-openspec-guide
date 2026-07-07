@@ -1,0 +1,4 @@
+schema: spec-driven
+created: 2026-07-07
+goal: "Second real modernization proof, this time picked from analyzer output
+  corrected by the ej: tag-prefix fix, and verified live in a browser"

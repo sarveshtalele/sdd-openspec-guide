@@ -1,0 +1,18 @@
+# --- Legacy source — vendored clone of syncfusion/aspnet-ej1-demos, not our work.
+# Re-clonable anytime (see README.md "Getting the legacy source"); excluded whole,
+# not just its build artifacts, to keep this repo to just what we actually authored. ---
+legacy/
+
+# --- Modernization (Node/Vite) build/vendor artifacts — regenerable, not source ---
+modernization/orders-grid-web/node_modules/
+modernization/orders-grid-web/dist/
+modernization/**/bin/
+modernization/**/obj/
+
+# --- Python ---
+**/__pycache__/
+*.pyc
+
+# --- OS/editor cruft ---
+.DS_Store
+Thumbs.db

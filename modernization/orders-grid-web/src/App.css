@@ -1,0 +1,55 @@
+main {
+  max-width: 900px;
+  margin: 2rem auto;
+  font-family: sans-serif;
+}
+
+.checkbox-selection-grid table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.checkbox-selection-grid th,
+.checkbox-selection-grid td {
+  border: 1px solid #ccc;
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+}
+
+.checkbox-selection-grid tr.checked {
+  background-color: #d6eaff;
+}
+
+.checkbox-selection-grid .pager {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.basic-selection-grid table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.basic-selection-grid th,
+.basic-selection-grid td {
+  border: 1px solid #ccc;
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+}
+
+.basic-selection-grid tr {
+  cursor: pointer;
+}
+
+.basic-selection-grid tr.selected {
+  background-color: #d6eaff;
+}
+
+.basic-selection-grid .pager {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
