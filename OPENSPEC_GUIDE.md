@@ -5,7 +5,15 @@ install it, run it day-to-day on any project, and use it to migrate a legacy cod
 end-to-end. Every command and behavior here was actually run and verified while building
 this repo — see [README.md](README.md) and
 [example-walkthrough/EXAMPLE_WALKTHROUGH.md](example-walkthrough/EXAMPLE_WALKTHROUGH.md)
-for the real, full transcript this guide is distilled from.
+for the real, full transcript this guide is distilled from. For execution-model
+mechanics and Claude Code integration specifically, see
+[OPENSPEC_HANDBOOK.md](OPENSPEC_HANDBOOK.md) — this guide covers usage and workflow, the
+Handbook covers precisely what runs, what invokes what, and when.
+
+**One-sentence execution model**: OpenSpec is a file-based planning tool — it never
+compiles or runs application code. It produces `tasks.md`; a developer (or Claude Code,
+on instruction) then implements those tasks with ordinary tools (`dotnet`, `npm`).
+Full breakdown: `OPENSPEC_HANDBOOK.md` Part 1.
 
 ---
 

@@ -13,6 +13,11 @@
 > `analysis-output/` snapshot alongside this file was generated before that exclusion and
 > is kept as-is, including its internal `repo_path` field pointing at the old location —
 > historically accurate, not a live reference.
+>
+> **This document is a historical transcript, not a conceptual guide** — it records
+> exact commands and exact output, unedited. For what actually executes when (OpenSpec
+> vs. the skill vs. Claude Code) and why, read `OPENSPEC_HANDBOOK.md` Part 1 first; it
+> will make the sequence below easier to follow.
 
 A real, hands-on run of the `aspx-analyzer` skill + OpenSpec against a real public repo —
 [syncfusion/aspnet-ej1-demos](https://github.com/syncfusion/aspnet-ej1-demos), 1147 ASP.NET
